@@ -1,0 +1,23 @@
+.my-swiper .swiper-button-next,
+.my-swiper .swiper-button-prev {
+  color: white; /* Change arrow color */
+  background-color: #B17457; /* Background color */
+  width: 45px; /* Width of the arrows */
+  height: 45px; /* Height of the arrows */
+  border-radius: 50%; /* Make arrows circular */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.my-swiper .swiper-button-next {
+  right: 0px; /* Adjust right position */
+}
+
+.my-swiper .swiper-button-prev {
+  left: 0px; /* Adjust left position */
+}
+.my-swiper .swiper-button-next::after,
+.my-swiper .swiper-button-prev::after {
+  font-size: 12px; /* Adjust icon size */
+  font-weight: 500; /* Make icon bold */
+}

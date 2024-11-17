@@ -1,0 +1,47 @@
+{
+    "places":[
+    {
+      "id": 1,
+      "name": "Cafe Pluck",
+      "type": "cafe",
+      "location": "New Delhi",
+      "people": 2,
+      "age":"10-50",
+      "category":"dining",
+      "description": "A contemporary café offering vegetarian and vegan-friendly options.",
+      "price": 500,
+      "duration": 2, 
+      "image": "https://example.com/cafe-pluck.jpg"
+    },
+    {
+      "id": 2,
+      "name": "Lotus Temple",
+      "type": "activity",
+      "location": "New Delhi",
+      "description": "A peaceful visit to the architectural beauty of Lotus Temple.",
+      "price": 0,
+      "duration": 1.5, 
+      "image": "https://example.com/lotus-temple.jpg"
+    },
+    {
+      "id": 3,
+      "name": "Central Park Walk",
+      "type": "activity",
+      "location": "New Delhi",
+      "description": "Take a calming walk through the lush green Central Park.",
+      "price": 0,
+      "duration": 1, 
+      "image": "https://example.com/central-park.jpg"
+    },
+    {
+      "id": 4,
+      "name": "Connaught Place Café Tour",
+      "type": "activity",
+      "location": "New Delhi",
+      "description": "Explore a variety of cafés in the heart of Connaught Place.",
+      "price": 700,
+      "duration": 3, 
+      "image": "https://example.com/connaught-place.jpg"
+    }
+  ]
+}

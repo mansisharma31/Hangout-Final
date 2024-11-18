@@ -1,25 +1,25 @@
 import tensorflow as tf
 import numpy as np
 import pandas as pd
-import joblib  # For loading encoders and scaler
+import joblib 
 
 class ItineraryGenerator:
     def __init__(self, model_path, encoder_location_path, encoder_category_path, scaler_path, data_path):
-        # Load the saved model and preprocessing objects
+
         self.model = tf.keras.models.load_model(model_path)
         self.encoder_location = joblib.load(encoder_location_path)
         self.encoder_category = joblib.load(encoder_category_path)
         self.scaler = joblib.load(scaler_path)
         
-        # Load the places data
+
         self.df = pd.read_csv(data_path)
         
-        # ID-to-label and label-to-ID mappings
+
         self.id_to_label = {item_id: idx for idx, item_id in enumerate(sorted(self.df['id'].unique()))}
         self.label_to_id = {idx: item_id for item_id, idx in self.id_to_label.items()}
 
     def generate_itineraries(self, location, budget, duration, category=None, top_n=3):
-        # Transform location and category based on user input
+
         encoded_location = self.encoder_location.transform([[location]])
         if category:
             encoded_category = self.encoder_category.transform(np.array(category).reshape(-1, 1))
@@ -29,38 +29,37 @@ class ItineraryGenerator:
         if category and len(category) > 1:
             encoded_category = np.sum(encoded_category, axis=0).reshape(1, -1)
     
-        # Normalize budget and duration
+
         normalized_price_duration = self.scaler.transform([[budget, duration]])
     
-        # Combine all features for user input
+
         user_features = np.hstack([encoded_location, encoded_category, normalized_price_duration])
 
-        # Predict using the loaded model
+
         predictions = self.model.predict(user_features)[0]
 
-        # Filter places based on budget, duration, location
+
         filtered_places = self.df[
             (self.df['price'] <= budget) & 
             (self.df['duration'] <= duration) & 
             (self.df['location'] == location)
         ]
     
-        # Filter places by category if categories are provided
+
         if category:
             filtered_places = filtered_places[filtered_places['category'].isin(category)]
 
-        # Separate dining places from the rest
+
         dining_places = filtered_places[filtered_places['category'] == 'dining']
         other_places = filtered_places[filtered_places['category'] != 'dining']
 
-        # If no categories are selected, and duration is >= 2 hours, ensure at least one dining place is included
+
         if not category and duration >= 2 and dining_places.empty:
             print("Warning: No dining places available for this duration, please check your data!")
             return
 
         all_itineraries = []
 
-        # Generate possible itineraries by including a dining place if needed
         for _, dining_place in dining_places.iterrows():
             current_duration = dining_place['duration']
             current_budget = dining_place['price']
@@ -68,8 +67,7 @@ class ItineraryGenerator:
         
             remaining_duration = duration - current_duration
             remaining_budget = budget - current_budget
-        
-            # Loop over other places and fill the remaining duration and budget
+
             for _, place in other_places.iterrows():
                 if current_duration + place['duration'] <= duration and current_budget + place['price'] <= budget:
                     selected_places.append(place)
@@ -82,7 +80,6 @@ class ItineraryGenerator:
             if current_duration <= duration and current_budget <= budget and selected_places:
                 all_itineraries.append(selected_places)
 
-        # If categories are provided and no dining places are required, create itineraries with the selected categories
         if category:
             all_itineraries = []
             for _, place in filtered_places.iterrows():
@@ -105,16 +102,15 @@ class ItineraryGenerator:
                 if current_duration <= duration and current_budget <= budget and selected_places:
                     all_itineraries.append(selected_places)
 
-        # Sort itineraries by model predictions
         itineraries_with_scores = []
         for itinerary in all_itineraries:
             itinerary_score = sum(predictions[self.df[self.df['id'] == place['id']].index[0]] for place in itinerary)
             itineraries_with_scores.append((itinerary, itinerary_score))
     
-        # Sort itineraries by score and return the top N
+
         itineraries_with_scores.sort(key=lambda x: x[1], reverse=True)
 
-        # Display the top itineraries
+
         recommendations = {}
 
         itineraryList = []
@@ -151,7 +147,7 @@ class ItineraryGenerator:
 
 # Example usage
 if __name__ == '__main__':
-    # Initialize the itinerary generator
+
     itinerary_generator = ItineraryGenerator(
         model_path='models/content_model.h5',
         encoder_location_path='models/encoder_location.pkl',
@@ -160,14 +156,14 @@ if __name__ == '__main__':
         data_path='data/places_data.csv'
     )
     
-    # Example user inputs
-    user_location = 'New Delhi'  # Replace with user input
-    user_category = []  # Replace with user input or None if no preference
-    max_budget = 1000  # Replace with user input
-    max_duration = 5  # Replace with user input (in hours)
-    top_n_recommendations = 3  # Number of itineraries to return
 
-    # Generate itineraries
+    user_location = 'New Delhi'
+    user_category = []
+    max_budget = 1000  
+    max_duration = 5 
+    top_n_recommendations = 3 
+
+
     itinerary_generator.generate_itineraries(user_location, max_budget, max_duration, user_category, top_n=top_n_recommendations)
 
 
